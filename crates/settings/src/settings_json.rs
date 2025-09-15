@@ -10,6 +10,7 @@ use util::RangeExt;
 pub struct SettingsJsonSchemaParams<'a> {
     pub language_names: &'a [String],
     pub font_names: &'a [String],
+    pub icon_theme_names: &'a [String],
 }
 
 /// Value registered which specifies JSON schemas that are generated at runtime.
