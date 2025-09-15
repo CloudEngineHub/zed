@@ -9311,12 +9311,8 @@ dependencies = [
  "futures 0.3.31",
  "gpui",
  "http_client",
-<<<<<<< HEAD
- "json_schema_store",
-||||||| c1d1d1cff6
-=======
  "itertools 0.14.0",
->>>>>>> main
+ "json_schema_store",
  "language",
  "log",
  "lsp",
@@ -9341,6 +9337,7 @@ dependencies = [
  "sha2",
  "shlex",
  "smol",
+ "snippet_provider",
  "task",
  "tempfile",
  "text",
@@ -14947,17 +14944,10 @@ dependencies = [
  "editor",
  "feature_flags",
  "gpui",
-<<<<<<< HEAD
  "itertools 0.14.0",
  "json_schema_store",
  "language",
  "log",
-||||||| c1d1d1cff6
- "itertools 0.14.0",
- "language",
- "log",
-=======
->>>>>>> main
  "menu",
  "serde",
  "serde_json",
@@ -20604,12 +20594,8 @@ dependencies = [
  "itertools 0.14.0",
  "jj_ui",
  "journal",
-<<<<<<< HEAD
  "json_schema_store",
-||||||| c1d1d1cff6
-=======
  "keymap_editor",
->>>>>>> main
  "language",
  "language_extension",
  "language_model",

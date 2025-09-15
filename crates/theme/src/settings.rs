@@ -8,7 +8,7 @@ use collections::HashMap;
 use derive_more::{Deref, DerefMut};
 use gpui::{
     App, Context, Font, FontFallbacks, FontFeatures, FontStyle, FontWeight, Global, Pixels,
-    SharedString, Subscription, Window, px,
+    Subscription, Window, px,
 };
 use refineable::Refineable;
 use schemars::{JsonSchema, json_schema};
