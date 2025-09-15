@@ -1875,6 +1875,8 @@ mod tests {
                 (6, 84),
             ]],
         );
+        // code blocks
+        assert_mappings(&render_markdown("```", cx), vec![vec![(0, 0), (3, 1)]]);
     }
 
     fn render_markdown(markdown: &str, cx: &mut TestAppContext) -> RenderedText {
