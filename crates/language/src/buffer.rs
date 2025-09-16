@@ -343,6 +343,7 @@ pub trait File: Send + Sync + Any {
     /// Returns the path of this file relative to the worktree's root directory.
     fn path(&self) -> &Arc<RelPath>;
 
+    // TODO figure out what type this should return
     /// Returns the path of this file relative to the worktree's parent directory (this means it
     /// includes the name of the worktree's root folder).
     fn full_path(&self, cx: &App) -> PathBuf;
@@ -4591,12 +4592,12 @@ impl BufferSnapshot {
     }
 
     /// Resolves the file path (relative to the worktree root) associated with the underlying file.
-    pub fn resolve_file_path(&self, cx: &App, include_root: bool) -> Option<Arc<RelPath>> {
+    pub fn resolve_file_path(&self, cx: &App, include_root: bool) -> Option<PathBuf> {
         if let Some(file) = self.file() {
             if file.path().file_name().is_none() || include_root {
                 Some(file.full_path(cx))
             } else {
-                Some(file.path().clone())
+                Some(file.path().as_std_path().to_owned())
             }
         } else {
             None
@@ -5092,8 +5093,8 @@ impl File for TestFile {
         &self.path
     }
 
-    fn full_path(&self, _: &gpui::App) -> Arc<RelPath> {
-        RelPath::from_str(&self.root_name).join(&self.path)
+    fn full_path(&self, _: &gpui::App) -> PathBuf {
+        PathBuf::from(self.root_name).join(&self.path)
     }
 
     fn as_local(&self) -> Option<&dyn LocalFile> {

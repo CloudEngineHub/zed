@@ -720,7 +720,7 @@ impl LanguageRegistry {
         self: &Arc<Self>,
         path: &'a RelPath,
     ) -> impl Future<Output = Result<Arc<Language>>> + 'a {
-        let available_language = self.language_for_file_internal(path, None, None);
+        let available_language = self.language_for_file_internal(path.as_std_path(), None, None);
 
         let this = self.clone();
         async move {
@@ -734,16 +734,16 @@ impl LanguageRegistry {
 
     fn language_for_file_internal(
         self: &Arc<Self>,
-        path: &RelPath,
+        path: &Path,
         content: Option<&Rope>,
         user_file_types: Option<&FxHashMap<Arc<str>, GlobSet>>,
     ) -> Option<AvailableLanguage> {
-        let filename = path.file_name();
+        let filename = path.file_name().and_then(|filename| filename.to_str());
         // `Path.extension()` returns None for files with a leading '.'
         // and no other extension which is not the desired behavior here,
         // as we want `.zshrc` to result in extension being `Some("zshrc")`
         let extension = filename.and_then(|filename| filename.split('.').next_back());
-        let path_suffixes = [extension, filename, Some(path.as_str())]
+        let path_suffixes = [extension, filename, path.to_str()]
             .iter()
             .filter_map(|suffix| suffix.map(|suffix| (suffix, globset::Candidate::new(suffix))))
             .collect::<SmallVec<[_; 3]>>();

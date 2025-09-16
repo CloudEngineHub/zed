@@ -917,7 +917,7 @@ impl SettingsStore {
                             v.insert((editorconfig_contents.to_owned(), None));
                             return Err(InvalidSettingsError::Editorconfig {
                                 message: e.to_string(),
-                                path: directory_path.join(RelPath::from_str(EDITORCONFIG_NAME)),
+                                path: directory_path.join(RelPath::new(EDITORCONFIG_NAME).unwrap()),
                             });
                         }
                     },
@@ -935,7 +935,7 @@ impl SettingsStore {
                                     return Err(InvalidSettingsError::Editorconfig {
                                         message: e.to_string(),
                                         path: directory_path
-                                            .join(RelPath::from_str(EDITORCONFIG_NAME)),
+                                            .join(RelPath::new(EDITORCONFIG_NAME).unwrap()),
                                     });
                                 }
                             }
