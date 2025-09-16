@@ -5486,6 +5486,18 @@ impl Editor {
 
         drop(multibuffer_snapshot);
 
+        // Hide the current completions menu when query is empty. Without this, cached
+        // completions from before the trigger char may be reused (#32774).
+        if query.is_none() {
+            let menu_is_open = matches!(
+                self.context_menu.borrow().as_ref(),
+                Some(CodeContextMenu::Completions(_))
+            );
+            if menu_is_open {
+                self.hide_context_menu(window, cx);
+            }
+        }
+
         let mut ignore_word_threshold = false;
         let provider = match requested_source {
             Some(CompletionsMenuSource::Normal) | None => self.completion_provider.clone(),
@@ -5506,37 +5518,6 @@ impl Editor {
         let filter_completions = provider
             .as_ref()
             .is_none_or(|provider| provider.filter_completions());
-
-        let trigger_kind = match trigger {
-            Some(trigger) if buffer.read(cx).completion_triggers().contains(trigger) => {
-                CompletionTriggerKind::TRIGGER_CHARACTER
-            }
-            _ => CompletionTriggerKind::INVOKED,
-        };
-        let completion_context = CompletionContext {
-            trigger_character: trigger.and_then(|trigger| {
-                if trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER {
-                    Some(String::from(trigger))
-                } else {
-                    None
-                }
-            }),
-            trigger_kind,
-        };
-
-        // Hide the current completions menu when a trigger char is typed. Without this, cached
-        // completions from before the trigger char may be reused (#32774). Snippet choices could
-        // involve trigger chars, so this is skipped in that case.
-        if trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER && self.snippet_stack.is_empty()
-        {
-            let menu_is_open = matches!(
-                self.context_menu.borrow().as_ref(),
-                Some(CodeContextMenu::Completions(_))
-            );
-            if menu_is_open {
-                self.hide_context_menu(window, cx);
-            }
-        }
 
         if let Some(CodeContextMenu::Completions(menu)) = self.context_menu.borrow_mut().as_mut() {
             if filter_completions {
@@ -5566,6 +5547,23 @@ impl Editor {
                     }
                 }
             }
+        };
+
+        let trigger_kind = match trigger {
+            Some(trigger) if buffer.read(cx).completion_triggers().contains(trigger) => {
+                CompletionTriggerKind::TRIGGER_CHARACTER
+            }
+            _ => CompletionTriggerKind::INVOKED,
+        };
+        let completion_context = CompletionContext {
+            trigger_character: trigger.and_then(|trigger| {
+                if trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER {
+                    Some(String::from(trigger))
+                } else {
+                    None
+                }
+            }),
+            trigger_kind,
         };
 
         let (word_replace_range, word_to_exclude) = if let (word_range, Some(CharKind::Word)) =
