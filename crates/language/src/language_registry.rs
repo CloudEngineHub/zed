@@ -34,7 +34,7 @@ use sum_tree::Bias;
 use text::{Point, Rope};
 use theme::Theme;
 use unicase::UniCase;
-use util::{ResultExt, maybe, post_inc};
+use util::{ResultExt, maybe, post_inc, rel_path::RelPath};
 
 #[derive(
     Debug, Clone, Hash, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, JsonSchema,
@@ -718,7 +718,7 @@ impl LanguageRegistry {
 
     pub fn language_for_file_path<'a>(
         self: &Arc<Self>,
-        path: &'a Path,
+        path: &'a RelPath,
     ) -> impl Future<Output = Result<Arc<Language>>> + 'a {
         let available_language = self.language_for_file_internal(path, None, None);
 
@@ -734,16 +734,16 @@ impl LanguageRegistry {
 
     fn language_for_file_internal(
         self: &Arc<Self>,
-        path: &Path,
+        path: &RelPath,
         content: Option<&Rope>,
         user_file_types: Option<&FxHashMap<Arc<str>, GlobSet>>,
     ) -> Option<AvailableLanguage> {
-        let filename = path.file_name().and_then(|name| name.to_str());
+        let filename = path.file_name();
         // `Path.extension()` returns None for files with a leading '.'
         // and no other extension which is not the desired behavior here,
         // as we want `.zshrc` to result in extension being `Some("zshrc")`
         let extension = filename.and_then(|filename| filename.split('.').next_back());
-        let path_suffixes = [extension, filename, path.to_str()]
+        let path_suffixes = [extension, filename, Some(path.as_str())]
             .iter()
             .filter_map(|suffix| suffix.map(|suffix| (suffix, globset::Candidate::new(suffix))))
             .collect::<SmallVec<[_; 3]>>();

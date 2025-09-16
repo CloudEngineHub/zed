@@ -305,6 +305,7 @@ impl WorktreeStore {
                         abs_path: response.canonicalized_path,
                     },
                     client,
+                    path_style,
                     cx,
                 )
             })?;

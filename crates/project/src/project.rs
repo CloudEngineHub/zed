@@ -1593,7 +1593,7 @@ impl Project {
             let mut worktrees = Vec::new();
             for worktree in response.payload.worktrees {
                 let worktree =
-                    Worktree::remote(remote_id, replica_id, worktree, client.clone().into(), cx);
+                    Worktree::remote(remote_id, replica_id, worktree, client.clone(), cx);
                 worktrees.push(worktree);
             }
 
@@ -2152,7 +2152,7 @@ impl Project {
     pub fn copy_entry(
         &mut self,
         entry_id: ProjectEntryId,
-        relative_worktree_source_path: Option<PathBuf>,
+        relative_worktree_source_path: Option<Arc<RelPath>>,
         new_path: impl Into<Arc<Path>>,
         cx: &mut Context<Self>,
     ) -> Task<Result<Option<Entry>>> {
@@ -4902,7 +4902,9 @@ impl Project {
     ) -> Result<proto::FindSearchCandidatesResponse> {
         let peer_id = envelope.original_sender_id()?;
         let message = envelope.payload;
-        let query = SearchQuery::from_proto(message.query.context("missing query field")?)?;
+        let path_style = this.read_with(&cx, |this, cx| this.path_style())?;
+        let query =
+            SearchQuery::from_proto(message.query.context("missing query field")?, path_style)?;
         let results = this.update(&mut cx, |this, cx| {
             this.find_search_candidate_buffers(&query, message.limit as _, cx)
         })?;
@@ -5295,6 +5297,10 @@ impl Project {
 
     pub fn agent_location(&self) -> Option<AgentLocation> {
         self.agent_location.clone()
+    }
+
+    pub fn path_style(&self) -> PathStyle {
+        todo!()
     }
 }
 
